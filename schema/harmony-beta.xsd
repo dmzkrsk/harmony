@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress XmlUnusedNamespaceDeclaration -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="http://the-island.ru/xml/harmony/beta"
+           xmlns:harmony="http://the-island.ru/xml/harmony/beta"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://the-island.ru/xml/harmony/beta"
+        >
+    <xs:element name="song" type="songType">
+        <xs:annotation>
+            <xs:documentation>Root element</xs:documentation>
+        </xs:annotation>
+        <xs:key name="uniqueSectionId">
+            <xs:selector xpath="./harmony:sections/harmony:section"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:key name="uniqueProgressionId">
+            <xs:selector xpath="./harmony:progressions/harmony:progression"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="progressionRef" refer="uniqueProgressionId">
+            <xs:selector xpath="./harmony:sections/harmony:section/harmony:progression"/>
+            <xs:field xpath="@ref"/>
+        </xs:keyref>
+        <xs:keyref name="sectionRef" refer="uniqueSectionId">
+            <xs:selector xpath="./harmony:structure/harmony:section"/>
+            <xs:field xpath="@ref"/>
+        </xs:keyref>
+    </xs:element>
+    <xs:simpleType name="lengthValue">
+        <xs:restriction base="xs:float">
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="betterId">
+        <xs:restriction base="xs:NCName">
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="nonEmptyString">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="repeatValue">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="2" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="transpositionValue">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[+\-](\d|1[01])" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="colorValue">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#[a-f0-9A-F]{6}" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="keyValue">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-G][b#]?m?" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="titleString">
+        <xs:restriction base="nonEmptyString" />
+    </xs:simpleType>
+    <xs:simpleType name="signatureRestriction">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d/(1|2|4|8|16|32|64|128)"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="chordValue">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([A-G][b#]?/)?[A-G][b#]?(m7|m|5|7|9|11|13|15|17|aug|dim|M|M7|maj7)?(sus4|sus2)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="barType">
+        <xs:attribute type="repeatValue" name="repeat" use="optional" default="1" />
+    </xs:complexType>
+    <xs:complexType name="chordType">
+        <xs:complexContent>
+            <xs:extension base="barType">
+                <xs:attribute type="chordValue" name="chord" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="progressionType">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="beat" maxOccurs="unbounded" minOccurs="0" type="chordType" />
+            <xs:element name="bar" maxOccurs="unbounded" minOccurs="0" type="chordType" />
+            <xs:element name="empty-bar" maxOccurs="unbounded" minOccurs="0" type="barType" />
+            <xs:element name="empty-beat" maxOccurs="unbounded" minOccurs="0" type="barType" />
+        </xs:sequence>
+        <xs:attribute type="betterId" name="id" use="required"/>
+        <xs:attribute type="signatureRestriction" name="signature" use="optional" default="4/4"/>
+        <xs:attribute type="nonEmptyString" name="title" use="optional" default=""/>
+    </xs:complexType>
+    <xs:complexType name="sectionProgressionType">
+        <xs:attribute type="betterId" name="ref" use="required"/>
+        <xs:attribute type="repeatValue" name="repeat" use="optional" default="1"/>
+    </xs:complexType>
+    <xs:complexType name="progressionsType">
+        <xs:sequence>
+            <xs:element type="progressionType" name="progression" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="companyType">
+        <xs:simpleContent>
+            <xs:extension base="nonEmptyString">
+                <xs:attribute type="xs:anyURI" name="domain" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="producerType">
+        <xs:sequence>
+            <xs:element type="nonEmptyString" name="author" minOccurs="0"/>
+            <xs:element type="companyType" name="company" minOccurs="0" />
+            <xs:element type="xs:gYear" name="year" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="songType">
+        <xs:sequence>
+            <xs:element type="metaType" name="meta"/>
+            <xs:element type="producerType" name="producer" minOccurs="0" />
+            <xs:element type="progressionsType" name="progressions"/>
+            <xs:element type="sectionsType" name="sections"/>
+            <xs:element type="structureType" name="structure"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="version" use="required" fixed="beta" />
+    </xs:complexType>
+    <xs:complexType name="sectionsType">
+        <xs:sequence>
+            <xs:element type="sectionType" name="section" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="sectionType" mixed="true">
+        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+            <xs:element type="sectionProgressionType" name="progression"/>
+        </xs:sequence>
+        <xs:attribute type="betterId" name="id" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="structureSectionType" mixed="true">
+        <xs:attribute type="betterId" name="ref" use="required"/>
+        <xs:attribute type="titleString" name="title" use="required"/>
+        <xs:attribute type="repeatValue" name="repeat" use="optional" default="1"/>
+        <xs:attribute type="colorValue" name="color" use="optional" default="#ffffff"/>
+    </xs:complexType>
+    <xs:complexType name="metaType">
+        <xs:sequence>
+            <xs:element type="nonEmptyString" name="artist"/>
+            <xs:element type="nonEmptyString" name="title"/>
+            <xs:element type="nonEmptyString" name="album" minOccurs="0"/>
+            <xs:element type="lengthValue" name="length">
+                <xs:annotation>
+                    <xs:documentation>Song length in seconds (time)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:float" name="bpm">
+                <xs:annotation>
+                    <xs:documentation>Song speed (beats per minute)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="keyValue" name="key" minOccurs="0"/>
+            <xs:element type="transpositionValue" name="transposition" minOccurs="0"/>
+            <xs:element type="nonEmptyString" name="comment" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="structureType">
+        <xs:sequence>
+            <xs:element type="structureSectionType" name="section" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute type="lengthValue" name="start" use="optional" default="0"/>
+    </xs:complexType>
+</xs:schema>
