@@ -36,6 +36,16 @@ class Var(object):
         """
         return self.name
 
+    def __repr__(self):
+        return '<Var: %s>' % self.name
+
+    def __radd__(self, other):
+        """
+        :type other: str or Var
+        :rtype: Var
+        """
+        return other + self.name
+
     def __add__(self, other):
         """
         :type other: str or Var
