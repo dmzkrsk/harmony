@@ -8,6 +8,7 @@ from song.structure import BaseStructure
 import settings
 
 from PIL import Image, ImageDraw, ImageFont
+from song.type.chord import ChordLength
 
 class Chord(object):
     def __init__(self, rawChord, color):
@@ -17,7 +18,7 @@ class Chord(object):
         """
 
         self.name = rawChord.name
-        self.beats = rawChord.beats
+        self.length = rawChord.length
         self.color = color
 
 class Progression(object):
@@ -32,6 +33,13 @@ class Progression(object):
         self.title = title
         self.repeats = repeats
         self.chords = chords
+
+    def length(self):
+        """
+        :return: Длина прогрессии
+        :rtype: ChordLength
+        """
+        return sum(x.length for x in self.chords)
 
 class Section(object):
     def __init__(self, title, repeats, progressions):
@@ -104,7 +112,7 @@ class Structure(BaseStructure):
         lineH = (H - extraH) // (lines + len(self._structure))
 
         maxBarSize = max(
-            sum(x.beats for x in progression.chords)
+            progression.length()
             for section in self._structure
             for progression in section.progressions
         )
@@ -125,10 +133,10 @@ class Structure(BaseStructure):
 
             for progression in section.progressions:
                 xPos = 0
-                beats = 0
+                pos = ChordLength(0, 1)
                 for chord in progression.chords:
-                    beats += chord.beats
-                    barX = 2 * beats * wEff // maxBarSize // 3
+                    pos += chord.length
+                    barX = 2 * pos.count(maxBarSize) * wEff // 3
                     draw.rectangle([(xPos, yPos), (barX, yPos + lineH)],
                         outline='black',
                         fill=str(chord.color))

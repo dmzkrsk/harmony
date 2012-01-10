@@ -31,16 +31,17 @@ class Structure(BaseTimedStructure):
         """
 
         # Расчитываем длину последовательности
-        beats = sum(x.beats for x in progression.rawChords)
+        beats = progression.beatCount()
+        _beatSize = 60.0 / self._bpm
 
         # Двойной цикл
         # Для каждой доли надо пройти второй цикл по кол-ву долей
         # Так как доля отображается на экране не только во время звучания
         # но и в то время, когда ударение на нее не падает
-        for c, b in product(xrange(beats), xrange(progression.signature[0])):
+        for c, b in product(xrange(beats), xrange(progression.signature.numerator)):
             # Номер активной доли
-            cn = c % progression.signature[0]
-            beatLabel = Beat(b, progression.signature[0], self._position + c * self._beatSize,
+            cn = c % progression.signature.numerator
+            beatLabel = Beat(b, progression.signature.numerator, self._position + c * _beatSize,
                 cn == b #Доля активна, если совпадают значения
             )
             self.beats.append(beatLabel)

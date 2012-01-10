@@ -3,14 +3,23 @@ class RawChord(object):
     """
     Отображение элемента progression/chord
     """
-    def __init__(self, name, beats):
+    def __init__(self, name, length):
         """
         :type name: str or unicode
-        :param beats: Длительность в долях такта
-        :type beats: int
+        :type length: ChordLength
         """
         self.name = name
-        self.beats = beats
+        self.length = length
+
+    def seconds(self, bpm):
+        """
+        Длина в секундах
+
+        :type bpm: float
+        :rtype: float
+        """
+
+        return self.length.seconds(bpm)
 
 class Progression(object):
     """
@@ -18,13 +27,20 @@ class Progression(object):
     """
     def __init__(self, signature, title, rawChords):
         """
-        :type signature: tuple(int, int)
+        :type signature: ChordLength
         :type title: str or unicode
         :type rawChords: list(RawChord)
         """
         self.signature = signature
         self.title = title
         self.rawChords = rawChords
+
+    def beatCount(self):
+        """
+        Количество долей в последовательности
+        """
+        length = sum(x.length for x in self.rawChords)
+        return length.numerator * self.signature.denominator / length.denominator
 
 class SectionProgression(object):
     """

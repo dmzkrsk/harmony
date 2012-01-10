@@ -4,6 +4,7 @@
 """
 import abc
 from . import ParseException, iterElements
+from song.type.chord import ChordLength
 from type.structure import *
 import validator
 
@@ -112,50 +113,47 @@ class ProgressionLoader(Loader):
         :rtype: None
         """
         id = element.getAttribute('id')
-        signature = validator.signature(element.getAttribute('signature'))
+        signature = ChordLength.validator(element.getAttribute('signature'))
         title = element.getAttribute('title')
 
-        chords = [self.processStructure(x, signature[0]) for x in iterElements(element)]
+        chords = [self.processStructure(x, signature) for x in iterElements(element)]
 
         if not chords:
             raise ParseException(u"Последовательность %s пуста" % id)
 
-        self.validate(id, chords, signature[0])
+        self.validate(id, chords, signature)
 
         self.values[id] = Progression(signature, title, chords)
 
     @classmethod
-    def validate(cls, id, chords, beats):
+    def validate(cls, id, chords, signature):
         """
         Проверяем, что такт заполнен полностью
 
         :type id: str or unicode
         :type chords: list(RawChord)
-        :type beats: int
         :rtype: None
         """
-        beatsCurrent = sum(x.beats for x in chords)
+        beatsTotal = sum(x.length for x in chords)
+        beatsUp = beatsTotal.shortage(signature)
 
-        if beatsCurrent % beats:
-            beatsUp = beatsCurrent + beats - beatsCurrent % beats
-            raise ParseException(u'Незаконченный такт в последовательности %s: %d of %d' % (id, beats, beatsUp))
+        if beatsUp:
+            raise ParseException(u'Незаконченный такт в последовательности %s: %s' % (id, beatsUp))
 
     @classmethod
-    def processStructure(cls, structureElement, beats):
+    def processStructure(cls, structureElement, signature):
         """
         Генерация элементов RawChord
 
         Необходимо расчитать размер в долях
 
         :type structureElement: xml.dom.minidom.Element
-        :type beats: int
+        :type signature: ChordLength
         :rtype: None
         """
-        repeats = validator.repeats(structureElement.getAttribute('repeat'))
-        chord = structureElement.getAttribute('chord')
-        if structureElement.tagName in ['empty-bar', 'bar']:
-            return RawChord(chord, beats * repeats)
-        elif structureElement.tagName in ['empty-beat', 'beat']:
-            return RawChord(chord, repeats)
+        length = ChordLength.validator(structureElement.getAttribute('length'), signature)
+        chord = structureElement.getAttribute('name')
+        if structureElement.tagName == 'chord':
+            return RawChord(chord, length)
         else:
             raise ParseException(u"Элемент %s не может содержать элемент %s" % (structureElement.parentNode.tagName, structureElement.tagName))

@@ -103,28 +103,6 @@ def start(value):
 
     raise ValidationException(u'Неверное значение для начала композиции: %ss' % value)
 
-#noinspection PyTupleAssignmentBalance
-def signature(value):
-    """
-    Проверка строкового обозначения сигнатуры на соответствие шаблону (4/4, 3/4, 6/8...)
-
-    :type value: unicode
-    :rtype: tuple(int, int)
-    """
-    if not value:
-        return 4, 4
-
-    try:
-        b, m = value.split('/')
-        b = int(b)
-        m = int(m)
-        if m in [1, 2, 4, 8, 16, 32, 64, 128] and b > 0:
-            return b, m
-    except (AttributeError, ValueError) :
-        pass
-
-    raise ValidationException(u'Неверное значение для сигнатуры: %s' % value)
-
 def repeats(value):
     """
     Проверка строкового обозначения количества повтором на соответствие целое число больше единицы.

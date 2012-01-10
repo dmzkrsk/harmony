@@ -102,7 +102,7 @@ class BaseTimedStructure(BaseStructure):
     def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
         self._position = validator.start(structure.getAttribute('start') or 0)
         self.declaredLength = declaredLength
-        self._beatSize = 60.0 / bpm
+        self._bpm = bpm
 
         super(BaseTimedStructure, self).__init__(declaredLength, bpm, transposition, structure, sections, progressions)
 
@@ -124,7 +124,7 @@ class BaseTimedStructure(BaseStructure):
 
                 for rawChord in progression.rawChords:
                     self.processChord(progression, rawChord)
-                    shift = rawChord.beats * self._beatSize
+                    shift = rawChord.seconds(self._bpm)
                     self._position += shift
 
                 if self._position > self.declaredLength:
