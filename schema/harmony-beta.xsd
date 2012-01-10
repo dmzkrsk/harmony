@@ -68,27 +68,30 @@
             <xs:pattern value="\d/(1|2|4|8|16|32|64|128)"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="lengthRestriction">
+        <xs:union>
+            <xs:simpleType>
+                <xs:restriction base="signatureRestriction" />
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="bar" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:union>
+    </xs:simpleType>
     <xs:simpleType name="chordValue">
         <xs:restriction base="xs:string">
             <xs:pattern value="([A-G][b#]?/)?[A-G][b#]?(m7|m|5|7|9|11|13|15|17|aug|dim|M|M7|maj7)?(sus4|sus2)?"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:complexType name="barType">
-        <xs:attribute type="repeatValue" name="repeat" use="optional" default="1" />
-    </xs:complexType>
     <xs:complexType name="chordType">
-        <xs:complexContent>
-            <xs:extension base="barType">
-                <xs:attribute type="chordValue" name="chord" use="required"/>
-            </xs:extension>
-        </xs:complexContent>
+        <xs:attribute type="lengthRestriction" name="length" use="required" />
+        <xs:attribute type="chordValue" name="name" use="optional" default=""/>
     </xs:complexType>
     <xs:complexType name="progressionType">
         <xs:sequence maxOccurs="unbounded">
-            <xs:element name="beat" maxOccurs="unbounded" minOccurs="0" type="chordType" />
-            <xs:element name="bar" maxOccurs="unbounded" minOccurs="0" type="chordType" />
-            <xs:element name="empty-bar" maxOccurs="unbounded" minOccurs="0" type="barType" />
-            <xs:element name="empty-beat" maxOccurs="unbounded" minOccurs="0" type="barType" />
+            <xs:element name="chord" maxOccurs="unbounded" minOccurs="0" type="chordType" />
         </xs:sequence>
         <xs:attribute type="betterId" name="id" use="required"/>
         <xs:attribute type="signatureRestriction" name="signature" use="optional" default="4/4"/>
@@ -132,13 +135,13 @@
             <xs:element type="sectionType" name="section" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:complexType name="sectionType" mixed="true">
+    <xs:complexType name="sectionType">
         <xs:sequence maxOccurs="unbounded" minOccurs="1">
             <xs:element type="sectionProgressionType" name="progression"/>
         </xs:sequence>
         <xs:attribute type="betterId" name="id" use="required"/>
     </xs:complexType>
-    <xs:complexType name="structureSectionType" mixed="true">
+    <xs:complexType name="structureSectionType">
         <xs:attribute type="betterId" name="ref" use="required"/>
         <xs:attribute type="titleString" name="title" use="required"/>
         <xs:attribute type="repeatValue" name="repeat" use="optional" default="1"/>
