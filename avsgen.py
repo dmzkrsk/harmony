@@ -15,6 +15,7 @@ from song.structure import label, beats
 from lib.wavefile import WaveFile
 
 parser = OptionParser(usage="usage: %prog options", option_class=DOption)
+parser.add_option('-b', "--background", action="store", type="opacity", dest="background", help="Additional background opacity")
 parser.add_option('-x', "--song", action="store", dest="xml", help="XML Song file")
 parser.add_option('-w', "--wav", action="store", dest="wav", help="Input WAV file")
 parser.add_option('-s', "--size", action="store", type='dimension', dest="size", help="Output size", default=(640, 480))
@@ -77,6 +78,8 @@ if __name__ == '__main__':
     del W, H, wH
 
     # главный видеоклип
+    mvc = avs.Var(settings.MAIN_VIDEO_CLIP)
+
     if options.source:
         if options.source.type == Media.IMAGE:
             print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('ImageSource',
@@ -89,6 +92,10 @@ if __name__ == '__main__':
         else:
             print >>sys.stderr, "Unexpected error"
             sys.exit(100)
+        # Фон
+        if options.background > 0:
+            print 'bg = ' + avs.Function('BlankClip', mvc)
+            print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Overlay', mvc, avs.Var('bg'), x=0, y=0, opacity=options.background)
     else:
         print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('BlankClip',
             length = avs.Var('frameCount'),
@@ -98,10 +105,6 @@ if __name__ == '__main__':
             fps = options.fps,
         )
 
-    # Сохраним для быстрого доступа
-    mvc = avs.Var(settings.MAIN_VIDEO_CLIP)
-
-    print 'empty_bar = ' + avs.Function('BlankClip', avs.Var(settings.MAIN_VIDEO_CLIP), height=avs.Var('emptyH')) + ' \\'
     # Аккорды
     subtitlesFromLabels(labels.chords,       options.fps, avs.Var('fontName'), avs.Var('4 * emptyH'), avs.Var('chordSize'),       avs.Var('chordY'))
     # Структура
@@ -133,7 +136,7 @@ if __name__ == '__main__':
     )
     print 'wave = ' + avs.Function('ImageSource', avs.Var("wiSource"), pixel_type = 'RGB32')
     # Добавляем на главное видео
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'), level=200)
+    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'), level=220)
     # Анимируем указатель
     print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Overlay",
         avs.Var('bar'), 0, avs.Var('H-wH'),
