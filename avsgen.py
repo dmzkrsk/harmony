@@ -7,7 +7,7 @@ from lib.media import Media
 from options import DOption
 
 from output import avs
-from avshelper import subtitlesFromLabels, emptyBar, frameNumber
+from avshelper import subtitlesFromLabels, frameNumber
 import settings
 from song.reader import SongReader
 from song.title import MetaTitle
@@ -103,14 +103,14 @@ if __name__ == '__main__':
 
     print 'empty_bar = ' + avs.Function('BlankClip', avs.Var(settings.MAIN_VIDEO_CLIP), height=avs.Var('emptyH')) + ' \\'
     # Аккорды
-    subtitlesFromLabels('chords',       'empty_bar', labels.chords,         options.fps, 2, avs.Var('fontName'), avs.Var('4 * emptyH'), avs.Var('chordSize'),       0, avs.Var('chordY'))
+    subtitlesFromLabels(labels.chords,       options.fps, avs.Var('fontName'), avs.Var('4 * emptyH'), avs.Var('chordSize'),       avs.Var('chordY'))
     # Структура
-    subtitlesFromLabels('sections',     'empty_bar', labels.sections,       options.fps, 8, avs.Var('fontName'), avs.Var('emptyH'), avs.Var('sectionSize'),     0, avs.Var('sectionY'))
+    subtitlesFromLabels(labels.sections,     options.fps, avs.Var('fontName'), avs.Var('emptyH'),     avs.Var('sectionSize'),     avs.Var('sectionY'))
     # Последовательности
-    subtitlesFromLabels('progressions', 'empty_bar', labels.progressions,   options.fps, 8, avs.Var('fontName'), avs.Var('emptyH'), avs.Var('progressionSize'), 0, avs.Var('progressionY'))
+    subtitlesFromLabels(labels.progressions, options.fps, avs.Var('fontName'), avs.Var('emptyH'),     avs.Var('progressionSize'), avs.Var('progressionY'))
 
     # Звездочки маркеры бита
-    print 'beats = ' + emptyBar('empty_bar', avs.Var('emptyH'))
+    print avs.Declare(settings.MAIN_VIDEO_CLIP, avs.Var(settings.MAIN_VIDEO_CLIP)) + ' \\'
     for start, end, beat, in sorted(beats.beats.iterTimed(), key=itemgetter(0)):
         print '  .' + avs.Function('Subtitle', beat.title,
             first_frame=frameNumber(start, options.fps),
@@ -118,27 +118,11 @@ if __name__ == '__main__':
             font=avs.Var('fontName'),
             size=avs.Var('beatSize'),
             x=avs.Var('W * %d / %d - beatSize / 2' % (2 * beat.position + beat.positions + 3, 4 * beat.positions + 4)),
+            y=avs.Var('beatY + emptyH - 1'),
             text_color=avs.Color.hex(beat.color),
-            align=7,
+            align=1,
         ) + ' \\'
     print
-
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Overlay', mvc, avs.Var('beats'),x=0, y=avs.Var('beatY'))
-
-    # Информационное поле
-    print 'info = ' + emptyBar('empty_bar', avs.Var('emptyH'))
-    #noinspection PyTypeChecker
-    print '  .' + avs.Function('Subtitle', '%d bpm' % int(round(harmony.bpm)),
-        first_frame=0,
-        last_frame=avs.Var('frameCount'),
-        font=avs.Var('fontName'),
-        size=avs.Var('infoSize'),
-        text_color=avs.Var('commonColor'),
-        y=4,
-        align=8,
-    )
-    print
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Overlay', mvc, avs.Var('info'),x=0, y=avs.Var('infoY'))
 
     # Рисуем палку указатель позиции
     print 'bar = ' + avs.Function('BlankClip', width=1, height=avs.Var('wH'), color=avs.Var('barColor'), pixel_type='RGB32')
@@ -149,7 +133,7 @@ if __name__ == '__main__':
     )
     print 'wave = ' + avs.Function('ImageSource', avs.Var("wiSource"), pixel_type = 'RGB32')
     # Добавляем на главное видео
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'))
+    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'), level=200)
     # Анимируем указатель
     print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Overlay",
         avs.Var('bar'), 0, avs.Var('H-wH'),
@@ -161,5 +145,23 @@ if __name__ == '__main__':
     # Сводим
     print avs.Function('AudioDub', mvc, avs.Var('a'))
     # Глобальные надписи
-    print avs.Function('Subtitle', harmony.buildTitle(MetaTitle).getTitle(), y=4, first_frame=0, last_frame=avs.Var('frameCount'), font=avs.Var('fontName'), size=avs.Var('commonSize'),
-        text_color=avs.Var('commonColor'), align=8, lsp=1)
+    print avs.Function('Subtitle', harmony.buildTitle(MetaTitle).getTitle(),
+        y=4,
+        first_frame=0,
+        last_frame=avs.Var('frameCount'),
+        font=avs.Var('fontName'),
+        size=avs.Var('commonSize'),
+        text_color=avs.Var('commonColor'),
+        align=8,
+        lsp=1)
+    # Информационное поле
+    #noinspection PyTypeChecker
+    print avs.Function('Subtitle', '%d bpm' % int(round(harmony.bpm)),
+        first_frame=0,
+        last_frame=avs.Var('frameCount'),
+        font=avs.Var('fontName'),
+        size=avs.Var('infoSize'),
+        text_color=avs.Var('commonColor'),
+        y=avs.Var('infoY + emptyH - infoSize /2 - 1'),
+        align=2,
+    )
