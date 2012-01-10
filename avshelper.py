@@ -12,23 +12,20 @@ def frameNumber(time, fps):
     """
     return int(round(time * fps))
 
-def emptyBar(empty_bar, height):
-    return avs.Function('BlankClip', avs.Var(empty_bar), height=height) + ' \\'
-
-def subtitlesFromLabels(clip, empty_bar, labels, fps, align, font, height, size, overlayX, overlayY):
+def subtitlesFromLabels(labels, fps, font, height, fontSize, overlayY):
     subtitles = ((frameNumber(start, fps), frameNumber(end, fps), label.title, label.color) \
         for start, end, label in labels.iterTimed())
 
-    print clip + ' = ' + emptyBar(empty_bar, height)
+    print avs.Declare(settings.MAIN_VIDEO_CLIP, avs.Var(settings.MAIN_VIDEO_CLIP)) + ' \\'
     for start, end, title, color in subtitles:
         print '  .' + avs.Function('Subtitle', title,
             first_frame=start,
             last_frame=end - 1,
+            y=avs.Var('%s + %s - 1' % (overlayY, height)),
             font=font,
-            size=size,
+            size=fontSize,
             text_color=avs.Color.hex(color),
-            align=align
+            align=2
         ) + ' \\'
 
     print
-    print settings.MAIN_VIDEO_CLIP +' = ' + avs.Function('Overlay', avs.Var(settings.MAIN_VIDEO_CLIP), avs.Var(clip), x=overlayX, y=overlayY)
