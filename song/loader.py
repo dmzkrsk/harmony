@@ -135,10 +135,10 @@ class ProgressionLoader(Loader):
         :rtype: None
         """
         beatsTotal = sum(x.length for x in chords)
-        beatsUp = beatsTotal.shortage(signature)
+        beatsLeft = beatsTotal.shortage(signature)
 
-        if beatsUp:
-            raise ParseException(u'Незаконченный такт в последовательности %s: %s' % (id, beatsUp))
+        if beatsLeft:
+            raise ParseException(u'Незаконченный такт в последовательности %s: %s' % (id, beatsLeft))
 
     @classmethod
     def processStructure(cls, structureElement, signature):
