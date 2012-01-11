@@ -159,7 +159,7 @@ if __name__ == '__main__':
         lsp=1)
     # Информационное поле
     #noinspection PyTypeChecker
-    print avs.Function('Subtitle', '%d bpm' % int(round(harmony.bpm)),
+    print avs.Function('Subtitle', '%d bpm | %s' % (int(round(harmony.bpm)), harmony.transposition or harmony.key),
         first_frame=0,
         last_frame=avs.Var('frameCount'),
         font=avs.Var('fontName'),
