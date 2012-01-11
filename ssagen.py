@@ -68,7 +68,7 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
     print "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
 
     drawBox = "{\p1}m 0 0 l %(width)d 0 %(width)d %(height)d 0 %(height)d{\p0}" % dict(width=W, height=H)
-    print ssa.Dialogue(options.offset, options.offset + labels.getPosition(), "BlackBox", 0, 0, drawBox, lineName='BlackBox', layer=0)
+    print ssa.Dialogue(0, wav.length, "BlackBox", 0, 0, drawBox, lineName='BlackBox', layer=0)
 
     labelslist = [
         (labels.chords, W/2, (H-wH) / 2 - H / 80, 'Chords'),
@@ -97,13 +97,13 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
     print ssa.Picture(options.offset, options.offset + wav.length, 0, H, waveWriter.filename)
 
     # Анимируем указатель
-    xCoorTimeStamps = [x * labels.getPosition() / W for x in xrange(W + 1)]
+    xCoorTimeStamps = [x * wav.length / W for x in xrange(W + 1)]
     for xCoor, time in enumerate(izip(xCoorTimeStamps[:-1], xCoorTimeStamps[1:])):
         start, end = time
         line = "{\p1}m %(x)d %(height)d l %(x)d %(wHY)d %(xp)d %(wHY)d %(xp)d %(height)d{\p0} %(x)d %(height)d" % dict(x=xCoor, height=H, wHY=H - wH, xp=xCoor+1)
         print ssa.Dialogue(options.offset + start, options.offset + end, "Line", 0, 0, line, layer=20)
 
     # Глобальные надписи
-    print ssa.Dialogue(options.offset, options.offset + labels.getPosition(), 'Common', W/2, H/80, '{\\q1}' + harmony.buildTitle(MetaTitle, upperCase=True).getTitle(), ssa.color(255, 255, 255))
+    print ssa.Dialogue(0, wav.length, 'Common', W/2, H/80, '{\\q1}' + harmony.buildTitle(MetaTitle, upperCase=True).getTitle(), ssa.color(255, 255, 255))
     #noinspection PyTypeChecker
-    print ssa.Dialogue(options.offset, options.offset + labels.getPosition(), 'Info', W/2, (H-wH) * 15 /16, '%d bpm | %s' % (int(round(harmony.bpm)), harmony.transposition or harmony.key), ssa.color(255, 255, 255))
+    print ssa.Dialogue(options.offset, options.offset + harmony.declaredLength, 'Info', W/2, (H-wH) * 15 /16, '%d bpm | %s' % (int(round(harmony.bpm)), harmony.transposition or harmony.key), ssa.color(255, 255, 255))
