@@ -67,7 +67,9 @@ class RandomColorGenerator(object):
         """
         colorsCount = len(self.colors)
         self.colorMap = {}
-        for colorIndex, key in enumerate(self.colors.keys()):
+        keys = self.colors.keys()
+        random.shuffle(keys)
+        for colorIndex, key in enumerate(keys):
             color = hsv2hex(
                 float(colorIndex)/colorsCount
                     + random.uniform(-.25/colorsCount, .25/colorsCount),
