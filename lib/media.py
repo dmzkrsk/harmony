@@ -2,10 +2,10 @@
 from PIL import Image
 
 class Media(object):
-    IMAGE = 1
     """
     Определение характеристик медиа-файла
     """
+    IMAGE = 1
     def __init__(self, filename):
         """
         :type filename: str or unicode
