@@ -35,7 +35,7 @@ def hexColor(color, alpha=0, withAlpha=True):
     """
 
     color = str(color).upper()
-    return ("%02X" % alpha if withAlpha else '') + color[-6:-4] + color[-4:-2] + color[-2:]
+    return ("%02X" % alpha if withAlpha else '') + color[-2:] + color[-4:-2] + color[-6:-4]
 
 def colorTag(color):
     """
