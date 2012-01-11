@@ -7,7 +7,7 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде маркеров бита
     """
-    def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
+    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
         """
         :type declaredLength: float
         :type bpm: float
@@ -18,7 +18,7 @@ class Structure(BaseTimedStructure):
         """
         self.beats = BeatSheet()
 
-        super(Structure, self).__init__(declaredLength, bpm, transposition, structure, sections, progressions)
+        super(Structure, self).__init__(declaredLength, bpm, key, transposition, structure, sections, progressions)
 
     def initProgression(self, progression, repeat, repeats):
         """

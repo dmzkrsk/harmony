@@ -86,7 +86,7 @@ class SongReader(object):
     declaredLength = _metaValue('length', True, validator.length)
     bpm = _metaValue('bpm', True, validator.bpm)
     key = _metaValue('key', False, validator.key)
-    transposition = _metaValue('transposition', False, validator.transposition, 0)
+    transposition = _metaValue('transposition', False, validator.key)
     comment = _metaValue('comment', False)
 
     def buildTitle(self, titlebuilder):
@@ -106,5 +106,5 @@ class SongReader(object):
         :type structure: structure.BaseStructure
         :rtype: structure.BaseStructure
         """
-        return structure(self.declaredLength, self.bpm, self.transposition,
+        return structure(self.declaredLength, self.bpm, self.key, self.transposition,
             self._structure, self._sections, self._progressions)

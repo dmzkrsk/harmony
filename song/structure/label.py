@@ -10,11 +10,12 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде аккордов, сегментов и последовательностей
     """
-    def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
+    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
         """
         :type declaredLength: float
         :type bpm: float
-        :type transposition: int
+        :type key: unicode
+        :type transposition: unicode
         :type structure: xml.dom.minidom.Element
         :type sections: dict
         :type progressions: dict
@@ -24,11 +25,12 @@ class Structure(BaseTimedStructure):
         self.progressions = LabelSheet()
         self._colorGenerator = RandomColorGenerator()
 
+        self._key = key
         self._transposition = transposition
 
         self._colorMap = []
 
-        super(Structure, self).__init__(declaredLength, bpm, transposition, structure, sections, progressions)
+        super(Structure, self).__init__(declaredLength, bpm, key, transposition, structure, sections, progressions)
 
     def initSection(self, section, repeat, repeats):
         """
@@ -80,7 +82,7 @@ class Structure(BaseTimedStructure):
         :rtype: None
         """
         color = self._colorGenerator[(progression.title, rawChord.name)]
-        chordLabel = self.labelAtCurPos(pretty_chord(rawChord.name, self._transposition), color)
+        chordLabel = self.labelAtCurPos(pretty_chord(rawChord.name, self._key, self._transposition), color)
         self.chords.append(chordLabel)
 
     def labelAtCurPos(self, title, color):

@@ -99,7 +99,7 @@ class BaseStructure(object):
 
 #noinspection PyUnusedLocal
 class BaseTimedStructure(BaseStructure):
-    def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
+    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
         self._position = validator.start(structure.getAttribute('start') or 0)
         self.declaredLength = declaredLength
         self._bpm = bpm

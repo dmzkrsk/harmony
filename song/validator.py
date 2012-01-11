@@ -25,22 +25,6 @@ def key(value):
 
     return value
 
-def transposition(value):
-    """
-    Проверка строкового обозначения транспозиции на соответствие числам от -11 до 11
-
-    :type value: unicode
-    :rtype: int
-    """
-    try:
-        t = int(value)
-        if -11 <= t <= 11:
-            return t
-    except ValueError:
-        pass
-
-    raise ValidationException(u'Неверное значение для транспозиции: %s' % value)
-
 def year(value):
     """
     Проверка строкового обозначения года на соответствие целому числу

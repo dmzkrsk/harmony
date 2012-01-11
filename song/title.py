@@ -1,6 +1,5 @@
 # coding=utf-8
 from abc import ABCMeta, abstractmethod
-from lib.musical import pretty_chord
 
 class Title(object):
     """
@@ -46,7 +45,7 @@ class MetaTitle(Title):
 
         if self._loader.key:
             #noinspection PyTypeChecker
-            key = u'in key of %s' % pretty_chord(self._loader.key, self._loader.transposition)
+            key = u'in key of %s' % (self._loader.transposition or self._loader.key)
         else:
             key = None
 
