@@ -90,14 +90,14 @@ class SongReader(object):
     transposition = _metaValue('transposition', False, validator_key)
     comment = _metaValue('comment', False)
 
-    def buildTitle(self, titlebuilder):
+    def buildTitle(self, titlebuilder, **kwargs):
         """
         Генерация текстов используя переданный Строитель (DI во всей красе)
 
         :type titlebuilder: title.Title
         :rtype: title.Title
         """
-        return titlebuilder(self)
+        return titlebuilder(self, **kwargs)
 
     #noinspection PyTypeChecker
     def getStructureAs(self, structure):
