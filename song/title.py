@@ -7,11 +7,12 @@ class Title(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, loader):
+    def __init__(self, loader, **kwargs):
         """
         :type loader: SongReader
         """
         self._loader = loader
+        self._kwargs = kwargs
 
     @abstractmethod
     def getTitle(self):
@@ -46,7 +47,9 @@ class MetaTitle(Title):
         if album:
             title += u' (%s)' % album
 
+        sep = u'\\N' if self._kwargs.get('upperCase', False) else u'\\n'
+
         if self._loader.comment:
             #noinspection PyTypeChecker
-            title += u"\\n" + self._loader.comment
+            title += sep + self._loader.comment
         return title
