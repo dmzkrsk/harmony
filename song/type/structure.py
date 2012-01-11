@@ -1,4 +1,6 @@
 # coding=utf-8
+from lib.color import RandomColorGenerator
+
 class RawChord(object):
     """
     Отображение элемента progression/chord
@@ -34,6 +36,10 @@ class Progression(object):
         self.signature = signature
         self.title = title
         self.rawChords = rawChords
+        self._colorGenerator = RandomColorGenerator()
+
+    def color(self, chord):
+        return self._colorGenerator[(chord,)]
 
     def beatCount(self):
         """
