@@ -18,6 +18,8 @@ parser = OptionParser(usage="usage: %prog options", option_class=DOption)
 parser.add_option('-b', "--background", action="store", type="opacity", dest="background", help="Additional background opacity")
 parser.add_option('-x', "--song", action="store", dest="xml", help="XML Song file")
 parser.add_option('-w', "--wav", action="store", dest="wav", help="Input WAV file")
+parser.add_option("--wmove", action="store", type='float', dest="wmove", help="WAV image scroll", default=1.0)
+parser.add_option("--middle", action="store_true", dest="middle", help="No cursor", default=False)
 parser.add_option('-s', "--size", action="store", type='dimension', dest="size", help="Output size", default=(640, 480))
 parser.add_option("--source", action="store", type='source', dest="source", help="Source image or video", default=None)
 parser.add_option('-f', '--fps', action="store", dest="fps",  type='int', help="Resulting video FPS", default=10)
@@ -30,6 +32,8 @@ if __name__ == '__main__':
 
     if options.source:
         options.size = options.source.size
+
+    options.wmove = max(1.0, options.wmove)
 
     # загружаем данные
     wav = WaveFile(options.wav)
@@ -44,10 +48,12 @@ if __name__ == '__main__':
         sys.exit(10)
 
     # генерируем звуковую волну картинкой
-    waveWriter = wav.writeWave(options.size[0], options.size[1] / settings.WAVE_FORM_PART)
+    wW = int(options.wmove * options.size[0])
+    waveWriter = wav.writeWave(wW, options.size[1] / settings.WAVE_FORM_PART)
 
     # итоговое кол-во кадров в видео
     W, H, wH = options.size[0], options.size[1], options.size[1] / settings.WAVE_FORM_PART
+    waveMoving = wW > W
     print '### DECLARATION'
     print avs.Declare('frameCount', int(wav.length * options.fps))
     print avs.Declare('fontName', options.font)
@@ -56,11 +62,13 @@ if __name__ == '__main__':
     print avs.Declare('W', W)
     print avs.Declare('H', H)
     print avs.Declare('wH', wH)
+    print avs.Declare('wW', wW)
+    print avs.Declare('waveOpacity', 220)
     print avs.Declare('wavSource', options.wav)
     print avs.Declare('barColor', avs.Color.rgb(255, 255, 255))
     print avs.Declare('commonColor', avs.Color.rgb(255, 255, 255))
     print '########################################'
-    print avs.Declare('wiSource', waveWriter.filename.replace('%dx%d' % (W, wH), '"+String(W)+"x"+String(wH)+"'))
+    print avs.Declare('wiSource', waveWriter.filename.replace('%dx%d' % (wW, wH), '"+String(wW)+"x"+String(wH)+"'))
     print avs.Declare('beatSize', avs.Var('H/12'))
     print avs.Declare('chordSize', avs.Var('H/4'))
     print avs.Declare('sectionSize', avs.Var('H/12'))
@@ -136,12 +144,27 @@ if __name__ == '__main__':
     )
     print 'wave = ' + avs.Function('ImageSource', avs.Var("wiSource"), pixel_type = 'RGB32')
     # Добавляем на главное видео
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'), level=220)
+    if not waveMoving:
+        print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Layer', mvc, avs.Var('wave'), 'add', x=0, y=avs.Var('H-wH'), level=avs.Var('waveOpacity'))
+    else:
+        if options.middle:
+            print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Layer",
+                avs.Var('wave'), "add", avs.Var('waveOpacity'), avs.Var('W/2'), avs.Var('H-wH'),
+                avs.Var('wave'), "add", avs.Var('waveOpacity'), avs.Var('W/2-wW'), avs.Var('H-wH'),
+            )
+        else:
+            print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Layer",
+                avs.Var('wave'), "add", avs.Var('waveOpacity'), 0, avs.Var('H-wH'),
+                avs.Var('wave'), "add", avs.Var('waveOpacity'), avs.Var('W-wW'), avs.Var('H-wH'),
+            )
     # Анимируем указатель
-    print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Overlay",
-        avs.Var('bar'), 0, avs.Var('H-wH'),
-        avs.Var('bar'), avs.Var('W'), avs.Var('H-wH'),
-    )
+    if waveMoving and options.middle:
+        print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Overlay', mvc, avs.Var('bar'), x=avs.Var('W/2'), y=avs.Var('H-wH'))
+    else:
+        print settings.MAIN_VIDEO_CLIP + ' = ' + avs.Function('Animate', mvc, 0, avs.Var('frameCount') + ' - 1', "Overlay",
+            avs.Var('bar'), 0, avs.Var('H-wH'),
+            avs.Var('bar'), avs.Var('W'), avs.Var('H-wH'),
+        )
 
     # Загружаем звук
     print 'a = ' + avs.Function('WAVSource', avs.Var("wavSource"))
