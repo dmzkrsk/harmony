@@ -43,18 +43,8 @@ class MetaTitle(Title):
         title = u'%s - %s' % (self._loader.artist, self._loader.title)
         album = AlbumTitle(self._loader).getTitle()
 
-        if self._loader.key:
-            #noinspection PyTypeChecker
-            key = u'in key of %s' % (self._loader.transposition or self._loader.key)
-        else:
-            key = None
-
         if album:
             title += u' (%s)' % album
-            if key:
-                title += ' ' + key
-        elif key:
-            title += u' (%s)' % key
 
         if self._loader.comment:
             #noinspection PyTypeChecker

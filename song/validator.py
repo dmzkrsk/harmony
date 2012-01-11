@@ -3,7 +3,6 @@
 Валидаторы типов
 """
 import re
-from lib.musical import KEY
 
 _COLOR = re.compile('#([0-9a-f]{2}){3}', re.I)
 
@@ -12,18 +11,6 @@ class ValidationException(Exception):
     Исключение, бросаемое при неудачной валидации
     """
     pass
-
-def key(value):
-    """
-    Проверка строкового обозначения тональности на соответствие шаблону
-
-    :type value: unicode
-    :rtype: unicode
-    """
-    if not KEY.match(value):
-        raise ValidationException(u'Неверное значение для тональности: %s' % value)
-
-    return value
 
 def year(value):
     """

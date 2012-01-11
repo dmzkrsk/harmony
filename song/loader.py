@@ -4,7 +4,7 @@
 """
 import abc
 from . import ParseException, iterElements
-from song.type.chord import ChordLength
+from lib.musical.type import Length
 from type.structure import *
 import validator
 
@@ -113,7 +113,7 @@ class ProgressionLoader(Loader):
         :rtype: None
         """
         id = element.getAttribute('id')
-        signature = ChordLength.validator(element.getAttribute('signature'))
+        signature = Length.validator(element.getAttribute('signature'))
         title = element.getAttribute('title')
 
         chords = [self.processStructure(x, signature) for x in iterElements(element)]
@@ -148,10 +148,10 @@ class ProgressionLoader(Loader):
         Необходимо расчитать размер в долях
 
         :type structureElement: xml.dom.minidom.Element
-        :type signature: ChordLength
+        :type signature: Length
         :rtype: None
         """
-        length = ChordLength.validator(structureElement.getAttribute('length'), signature)
+        length = Length.validator(structureElement.getAttribute('length'), signature)
         chord = structureElement.getAttribute('name')
         if structureElement.tagName == 'chord':
             return RawChord(chord, length)

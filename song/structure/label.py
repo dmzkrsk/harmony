@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from lib.color import RandomColorGenerator
-from lib.musical import pretty_chord
+from lib.musical.chords import pretty_chord
 from .. import validator
 from . import BaseTimedStructure
 from ..type.label import Label, LabelSheet

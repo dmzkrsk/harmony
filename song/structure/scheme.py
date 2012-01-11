@@ -3,12 +3,12 @@ from itertools import groupby, imap
 from operator import itemgetter
 import os
 from lib.color import RandomColorGenerator
+from lib.musical.type import Length
 from song import validator
 from song.structure import BaseStructure
 import settings
 
 from PIL import Image, ImageDraw, ImageFont
-from song.type.chord import ChordLength
 
 class Chord(object):
     def __init__(self, rawChord, color):
@@ -37,7 +37,7 @@ class Progression(object):
     def length(self):
         """
         :return: Длина прогрессии
-        :rtype: ChordLength
+        :rtype: Length
         """
         return sum(x.length for x in self.chords)
 
@@ -133,7 +133,7 @@ class Structure(BaseStructure):
 
             for progression in section.progressions:
                 xPos = 0
-                pos = ChordLength(0, 1)
+                pos = Length(0, 1)
                 for chord in progression.chords:
                     pos += chord.length
                     barX = 2 * pos.count(maxBarSize) * wEff // 3

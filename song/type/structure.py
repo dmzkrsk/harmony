@@ -6,7 +6,7 @@ class RawChord(object):
     def __init__(self, name, length):
         """
         :type name: str or unicode
-        :type length: ChordLength
+        :type length: Length
         """
         self.name = name
         self.length = length
@@ -27,7 +27,7 @@ class Progression(object):
     """
     def __init__(self, signature, title, rawChords):
         """
-        :type signature: ChordLength
+        :type signature: Length
         :type title: str or unicode
         :type rawChords: list(RawChord)
         """

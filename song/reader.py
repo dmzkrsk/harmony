@@ -2,6 +2,7 @@
 from song.loader import *
 import xml.dom.minidom
 import validator
+from lib.musical.validator import key as validator_key
 
 def _metaValue(tag, required, validator=None, default=None):
     """
@@ -85,8 +86,8 @@ class SongReader(object):
     year = _metaValue('year', False, validator.year)
     declaredLength = _metaValue('length', True, validator.length)
     bpm = _metaValue('bpm', True, validator.bpm)
-    key = _metaValue('key', False, validator.key)
-    transposition = _metaValue('transposition', False, validator.key)
+    key = _metaValue('key', False, validator_key)
+    transposition = _metaValue('transposition', False, validator_key)
     comment = _metaValue('comment', False)
 
     def buildTitle(self, titlebuilder):
