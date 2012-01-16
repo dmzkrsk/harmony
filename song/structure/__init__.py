@@ -47,13 +47,14 @@ class SectionProgressionsIterator(object):
             raise StopIteration()
 
         progression, repeats = self._section[self.pos]
+        repeat = self.repeat
 
         self.repeat += 1
         if self.repeat == repeats:
             self.repeat = 0
             self.pos += 1
 
-        return progression, self.repeat, repeats
+        return progression, repeat, repeats
 
 #noinspection PyUnusedLocal
 class BaseStructure(object):
