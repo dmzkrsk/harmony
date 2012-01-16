@@ -60,7 +60,7 @@
     </xs:simpleType>
     <xs:simpleType name="signatureRestriction">
         <xs:restriction base="xs:string">
-            <xs:pattern value="\d/(1|2|4|8|16|32|64|128)"/>
+            <xs:pattern value="\d+/(1|2|4|8|16|32|64|128)"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="lengthRestriction">
@@ -86,7 +86,7 @@
     </xs:complexType>
     <xs:complexType name="progressionType">
         <xs:sequence maxOccurs="unbounded">
-            <xs:element name="chord" maxOccurs="unbounded" minOccurs="0" type="chordType" />
+            <xs:element name="chord" maxOccurs="unbounded" minOccurs="1" type="chordType" />
         </xs:sequence>
         <xs:attribute type="betterId" name="id" use="required"/>
         <xs:attribute type="signatureRestriction" name="signature" use="optional" default="4/4"/>
