@@ -2,8 +2,6 @@
 """
 Вспомогательные функции для генерации ssa-скриптов
 """
-import os
-
 def color(r, g, b, a=0):
     return "%(a)02X%(b)02X%(g)02X%(r)02X" % locals()
 
@@ -37,7 +35,7 @@ def hexColor(color, alpha=0, withAlpha=True):
     """
 
     color = str(color).upper()
-    return ("%02X" % alpha if withAlpha else '') + color[-6:-4] + color[-4:-2] + color[-2:]
+    return ("%02X" % alpha if withAlpha else '') + color[-2:] + color[-4:-2] + color[-6:-4]
 
 def colorTag(color):
     """
@@ -105,18 +103,4 @@ def Style(name, fontName, fontSize, primaryColour=WHITE, border=1.6, align=5, bo
         pcolor=primaryColour,
         bold=-1 if bold else 0,
         align=align,
-    )
-
-def Picture(startTime, endTime, x, y, path, lineName="", layer=10):
-    """
-    Вставка изображений
-    """
-    return "Picture: %(layer)d,%(start)s,%(end)s,,%(name)s,%(x)04d,0000,%(y)04d,,%(path)s" % dict(
-        layer=layer,
-        start=timeStamp(startTime),
-        end=timeStamp(endTime),
-        name=lineName,
-        path=os.path.abspath(path),
-        x=x,
-        y=y
     )

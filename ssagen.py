@@ -88,14 +88,6 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
         print ssa.Dialogue(options.offset + start, options.offset + end, 'Beat', x, (H - wH) * 13 / 16, beat.title, ssa.hexColor(beat.color, withAlpha=False))
     print
 
-    # Сохраняем и загружаем картинку звука
-    waveWriter.write(
-        labels.getColorMap(),
-        [.7, .9, .97],
-    )
-
-    print ssa.Picture(options.offset, options.offset + wav.length, 0, H, waveWriter.filename)
-
     # Анимируем указатель
     xCoorTimeStamps = [x * wav.length / W for x in xrange(W + 1)]
     for xCoor, time in enumerate(izip(xCoorTimeStamps[:-1], xCoorTimeStamps[1:])):

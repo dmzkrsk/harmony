@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from lib.color import RandomColorGenerator
 from lib.musical.chords import pretty_chord
 from .. import validator, getAttr
 from . import BaseTimedStructure
@@ -22,8 +21,6 @@ class Structure(BaseTimedStructure):
         self.sections = LabelSheet()
         self.progressions = LabelSheet()
         self.infos = LabelSheet()
-
-        self._colorGenerator = RandomColorGenerator()
 
         self._key = extra['key']
         self._transposition = extra['transposition']
@@ -83,7 +80,7 @@ class Structure(BaseTimedStructure):
         :type rawChord: RawChord
         :rtype: None
         """
-        color = self._colorGenerator[(progression.title, rawChord.name)]
+        color = progression.color(rawChord.name)
         chordLabel = self.labelAtCurPos(pretty_chord(rawChord.name, self._key, self._transposition), color)
         self.chords.append(chordLabel)
 
