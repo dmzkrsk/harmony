@@ -58,7 +58,7 @@ if __name__ == '__main__':
     print avs.Declare('wH', wH)
     print avs.Declare('wavSource', options.wav)
     print avs.Declare('barColor', avs.Color.rgb(255, 255, 255))
-    print avs.Declare('commonColor', avs.Color.rgb(255, 255, 255))
+    print avs.Declare('commonColor', avs.Color.hex(settings.COMMON_COLOR))
     print '########################################'
     print avs.Declare('wiSource', waveWriter.filename.replace('%dx%d' % (W, wH), '"+String(W)+"x"+String(wH)+"'))
     print avs.Declare('beatSize', avs.Var('H/12'))
@@ -111,6 +111,8 @@ if __name__ == '__main__':
     subtitlesFromLabels(labels.sections,     options.fps, avs.Var('fontName'), avs.Var('emptyH'),     avs.Var('sectionSize'),     avs.Var('sectionY'))
     # Последовательности
     subtitlesFromLabels(labels.progressions, options.fps, avs.Var('fontName'), avs.Var('emptyH'),     avs.Var('progressionSize'), avs.Var('progressionY'))
+    # Инфо
+    subtitlesFromLabels(labels.infos,        options.fps, avs.Var('fontName'), avs.Var('emptyH'),     avs.Var('infoSize'),        avs.Var('infoY'))
 
     # Звездочки маркеры бита
     print avs.Declare(settings.MAIN_VIDEO_CLIP, avs.Var(settings.MAIN_VIDEO_CLIP)) + ' \\'
@@ -157,14 +159,3 @@ if __name__ == '__main__':
         text_color=avs.Var('commonColor'),
         align=8,
         lsp=1)
-    # Информационное поле
-    #noinspection PyTypeChecker
-    print avs.Function('Subtitle', '%d bpm | %s' % (int(round(harmony.bpm)), harmony.transposition or harmony.key),
-        first_frame=0,
-        last_frame=avs.Var('frameCount'),
-        font=avs.Var('fontName'),
-        size=avs.Var('infoSize'),
-        text_color=avs.Var('commonColor'),
-        y=avs.Var('infoY + emptyH - infoSize /2 - 1'),
-        align=2,
-    )

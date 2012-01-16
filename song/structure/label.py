@@ -23,6 +23,8 @@ class Structure(BaseTimedStructure):
         self.chords = LabelSheet()
         self.sections = LabelSheet()
         self.progressions = LabelSheet()
+        self.infos = LabelSheet()
+
         self._colorGenerator = RandomColorGenerator()
 
         self._key = key
@@ -70,6 +72,10 @@ class Structure(BaseTimedStructure):
         progressionTitle = self.makeTitle(progression.title, repeat, repeats)
         progressionLabel = self.labelAtCurPos(progressionTitle, settings.PROGRESSION_COLOR)
         self.progressions.append(progressionLabel)
+
+        infoLabel = u'%d bpm | %s' % (int(round(self._bpm)), progression.key or self._key)
+        infoLabel = self.labelAtCurPos(infoLabel, settings.COMMON_COLOR)
+        self.infos.append(infoLabel)
 
     def processChord(self, progression, rawChord):
         """
@@ -124,6 +130,7 @@ class Structure(BaseTimedStructure):
         self.chords.close(self._position)
         self.sections.close(self._position)
         self.progressions.close(self._position)
+        self.infos.close(self._position)
 
         if self._colorMap[-1][0] < self._position:
             self._colorMap.append((self._position - 1, None))

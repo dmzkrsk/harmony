@@ -5,6 +5,7 @@
 import abc
 from . import ParseException, iterElements
 from lib.musical.type import Length
+from lib.musical.validator import key as validator_key
 from type.structure import *
 import validator
 
@@ -115,6 +116,7 @@ class ProgressionLoader(Loader):
         id = element.getAttribute('id')
         signature = Length.validator(element.getAttribute('signature'))
         title = element.getAttribute('title')
+        key = validator_key(element.getAttribute('key')) if element.hasAttribute('key') else None
 
         chords = [self.processStructure(x, signature) for x in iterElements(element)]
 
@@ -123,7 +125,7 @@ class ProgressionLoader(Loader):
 
         self.validate(id, chords, signature)
 
-        self.values[id] = Progression(signature, title, chords)
+        self.values[id] = Progression(signature, title, chords, key)
 
     @classmethod
     def validate(cls, id, chords, signature):

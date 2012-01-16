@@ -91,6 +91,7 @@
         <xs:attribute type="betterId" name="id" use="required"/>
         <xs:attribute type="signatureRestriction" name="signature" use="optional" default="4/4"/>
         <xs:attribute type="nonEmptyString" name="title" use="optional" default=""/>
+        <xs:attribute type="keyValue" name="key" use="optional" default=""/>
     </xs:complexType>
     <xs:complexType name="sectionProgressionType">
         <xs:attribute type="betterId" name="ref" use="required"/>
