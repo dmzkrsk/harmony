@@ -7,20 +7,17 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде маркеров бита
     """
-    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
+    def preInit(self, declaredLength, structure, **extra):
         """
+        Предварительная инициализация
+
         :type declaredLength: float
-        :type bpm: float
-        :type transposition: int
         :type structure: xml.dom.minidom.Element
-        :type sections: dict
-        :type progressions: dict
         """
+        super(Structure, self).preInit(declaredLength, structure)
         self.beats = BeatSheet()
 
-        super(Structure, self).__init__(declaredLength, bpm, key, transposition, structure, sections, progressions)
-
-    def initProgression(self, progression, repeat, repeats):
+    def initProgression(self, progression, repeat, repeats, **extra):
         """
         Обработка новой последовательности
 
@@ -32,7 +29,7 @@ class Structure(BaseTimedStructure):
 
         # Расчитываем длину последовательности
         beats = progression.beatCount()
-        _beatSize = 60.0 / self._bpm
+        _beatSize = 60.0 / extra['bpm']
 
         # Двойной цикл
         # Для каждой доли надо пройти второй цикл по кол-ву долей

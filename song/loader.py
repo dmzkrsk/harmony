@@ -3,7 +3,7 @@
 Разбор последовательностей и секций
 """
 import abc
-from . import ParseException, iterElements
+from . import ParseException, iterElements, getAttr
 from lib.musical.type import Length
 from lib.musical.validator import key as validator_key
 from type.structure import *
@@ -83,13 +83,15 @@ class SectionLoader(Loader):
         """
         id = element.getAttribute('id')
 
-        progressions = [
-            SectionProgression(
-                x.getAttribute('ref'),
-                validator.repeats(x.getAttribute('repeat'))
-            )
-            for x in iterElements(element)
-        ]
+        progressions = []
+        for sp in iterElements(element):
+            if not sp.hasAttribute('ref'):
+                raise ParseException(u"Элемент %s должен содержать аттрибут REF" % sp.tagName)
+
+            progressions.append(SectionProgression(
+                sp.getAttribute('ref'),
+                getAttr(sp, 'repeat', False, validator.repeats, 1)
+            ))
 
         if not progressions:
             raise ParseException(u"Секция %s пуста" % id)
@@ -114,9 +116,9 @@ class ProgressionLoader(Loader):
         :rtype: None
         """
         id = element.getAttribute('id')
-        signature = Length.validator(element.getAttribute('signature'))
+        signature = getAttr(element, 'signature', False, Length.make_validator(), Length(4,4))
         title = element.getAttribute('title')
-        key = validator_key(element.getAttribute('key')) if element.hasAttribute('key') else None
+        key = getAttr(element, 'key', False, validator_key)
 
         chords = [self.processStructure(x, signature) for x in iterElements(element)]
 
@@ -153,7 +155,7 @@ class ProgressionLoader(Loader):
         :type signature: Length
         :rtype: None
         """
-        length = Length.validator(structureElement.getAttribute('length'), signature)
+        length = getAttr(structureElement, 'length', True, Length.make_validator(signature))
         chord = structureElement.getAttribute('name')
         if structureElement.tagName == 'chord':
             return RawChord(chord, length)

@@ -77,14 +77,10 @@ def start(value):
 def repeats(value):
     """
     Проверка строкового обозначения количества повтором на соответствие целое число больше единицы.
-    Единица в случае, если значение не указано
 
     :type value: unicode
     :rtype: int
     """
-    if not value:
-        return 1
-
     try:
         v = int(value)
         if v > 1:
@@ -94,16 +90,13 @@ def repeats(value):
 
     raise ValidationException(u'Неверное значение для повторов: %s' % value)
 
-def color(value, default):
+def color(value):
     """
     Проверка строкового обозначения цвета на соответствие шаблону
 
     :type value: unicode
     :rtype: unicode
     """
-    if not value:
-        value = default
-
     if not _COLOR.match(value):
         raise ValidationException(u'Неверное значение для цвета: %s' % value)
 
