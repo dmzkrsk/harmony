@@ -4,8 +4,8 @@ from operator import itemgetter
 import os
 from lib.color import RandomColorGenerator
 from lib.musical.type import Length
-from song import validator
-from song.structure import BaseStructure
+from .. import validator, getAttr
+from ..structure import BaseStructure
 import settings
 
 from PIL import Image, ImageDraw, ImageFont
@@ -57,20 +57,16 @@ class Structure(BaseStructure):
     Класс для графической презентации структуры песни
     """
 
-    def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
+    def preInit(self, declaredLength, structure, **extra):
         """
-        :type declaredLength: float
-        :type bpm: float
-        :type transposition: int
-        :type structure: xml.dom.minidom.Element
-        :type sections: dict
-        :type progressions: dict
-        """
+        Предварительная инициализация
 
+        :type declaredLength: float
+        :type structure: xml.dom.minidom.Element
+        """
+        super(Structure, self).preInit(declaredLength, structure, **extra)
         self._structure = []
         self._colorGenerator = RandomColorGenerator()
-
-        super(Structure, self).__init__(declaredLength, bpm, transposition, structure, sections, progressions)
 
     def finishStructure(self):
         """
@@ -94,7 +90,7 @@ class Structure(BaseStructure):
         for progression, repeats in imap(itemgetter(0), groupby(imap(lambda x: (x[0], x[2]), spIter))):
             chords = [Chord(x, self._colorGenerator[(progression.title, x.name)]) for x in progression.rawChords]
             progressions.append(Progression(progression.title, repeats, chords))
-        repeats = validator.repeats(section.getAttribute('repeat'))
+        repeats = getAttr(section, 'repeat', False, validator.repeats, 1)
         self._structure.append(Section(title, repeats, progressions))
 
     def drawStructure(self, W, H, wEff):

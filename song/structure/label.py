@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from lib.musical.chords import pretty_chord
-from .. import validator
+from .. import validator, getAttr
 from . import BaseTimedStructure
 from ..type.label import Label, LabelSheet
 import settings
@@ -9,26 +9,23 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде аккордов, сегментов и последовательностей
     """
-    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
+    def preInit(self, declaredLength, structure, **extra):
         """
+        Предварительная инициализация
+
         :type declaredLength: float
-        :type bpm: float
-        :type key: unicode
-        :type transposition: unicode
         :type structure: xml.dom.minidom.Element
-        :type sections: dict
-        :type progressions: dict
         """
+        super(Structure, self).preInit(declaredLength, structure, **extra)
         self.chords = LabelSheet()
         self.sections = LabelSheet()
         self.progressions = LabelSheet()
+        self.infos = LabelSheet()
 
-        self._key = key
-        self._transposition = transposition
+        self._key = extra['key']
+        self._transposition = extra['transposition']
 
         self._colorMap = []
-
-        super(Structure, self).__init__(declaredLength, bpm, key, transposition, structure, sections, progressions)
 
     def initSection(self, section, repeat, repeats):
         """
@@ -42,7 +39,7 @@ class Structure(BaseTimedStructure):
         :rtype: None
         """
         title = section.getAttribute('title')
-        color = validator.color(section.getAttribute('color'), settings.SECTION_COLOR_DEFAULT)
+        color = getAttr(section, 'color', False, validator.color, settings.SECTION_COLOR_DEFAULT)
         sectionTitle = self.makeTitle(title, repeat, repeats)
         sectionLabel = self.labelAtCurPos(sectionTitle, color)
         self.sections.append(sectionLabel)
@@ -54,7 +51,7 @@ class Structure(BaseTimedStructure):
 
         self._colorMap.append((self._position, color))
 
-    def initProgression(self, progression, repeat, repeats):
+    def initProgression(self, progression, repeat, repeats, **extra):
         """
         Обработка новой последовательности
 
@@ -68,6 +65,10 @@ class Structure(BaseTimedStructure):
         progressionTitle = self.makeTitle(progression.title, repeat, repeats)
         progressionLabel = self.labelAtCurPos(progressionTitle, settings.PROGRESSION_COLOR)
         self.progressions.append(progressionLabel)
+
+        infoLabel = u'%d bpm | %s' % (int(round(extra['bpm'])), progression.key or self._key)
+        infoLabel = self.labelAtCurPos(infoLabel, settings.COMMON_COLOR)
+        self.infos.append(infoLabel)
 
     def processChord(self, progression, rawChord):
         """
@@ -122,6 +123,7 @@ class Structure(BaseTimedStructure):
         self.chords.close(self._position)
         self.sections.close(self._position)
         self.progressions.close(self._position)
+        self.infos.close(self._position)
 
         if self._colorMap[-1][0] < self._position:
             self._colorMap.append((self._position - 1, None))

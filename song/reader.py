@@ -107,5 +107,6 @@ class SongReader(object):
         :type structure: structure.BaseStructure
         :rtype: structure.BaseStructure
         """
-        return structure(self.declaredLength, self.bpm, self.key, self.transposition,
-            self._structure, self._sections, self._progressions)
+        return structure(self.declaredLength, self._structure, self._sections, self._progressions,
+            bpm=self.bpm, key=self.key, transposition=self.transposition
+        )

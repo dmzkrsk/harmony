@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
-from .. import ParseException, validator, iterElements
+from .. import ParseException, validator, iterElements, getAttr
 
 class SectionProgressionsIterator(object):
     """
@@ -61,15 +61,15 @@ class BaseStructure(object):
     """
     Базовый класс для обхода структуры при помощи DOM
     """
-    def __init__(self, declaredLength, bpm, transposition, structure, sections, progressions):
+    def __init__(self, declaredLength, structure, sections, progressions, **extra):
         """
         :type declaredLength: float
-        :type bpm: float
-        :type transposition: int
         :type structure: xml.dom.minidom.Element
         :type sections: dict
         :type progressions: dict
         """
+        self.preInit(declaredLength, structure, **extra)
+
         for element in iterElements(structure):
             if element.tagName != 'section':
                 raise ParseException(u'Элемент %s не может содержать элемент %s' % (structure.tagName, element.tagName))
@@ -80,12 +80,12 @@ class BaseStructure(object):
                 raise ParseException(u"Элемент section должен содержать аттрибут TITLE")
 
             ref = element.getAttribute('ref')
-            self.processSection(element, SectionProgressionsIterator(ref, sections, progressions))
+            self.processSection(element, SectionProgressionsIterator(ref, sections, progressions), **extra)
 
         self.finishStructure()
 
     @abstractmethod
-    def processSection(self, section, spIter):
+    def processSection(self, section, spIter, **extra):
         """
         Обработка содержимого секции
         """
@@ -98,16 +98,30 @@ class BaseStructure(object):
         """
         pass
 
+    @abstractmethod
+    def preInit(self, declaredLength, structure, **extra):
+        """
+        Предварительная инициализация
+
+        :type declaredLength: float
+        :type structure: xml.dom.minidom.Element
+        """
+        pass
+
 #noinspection PyUnusedLocal
 class BaseTimedStructure(BaseStructure):
-    def __init__(self, declaredLength, bpm, key, transposition, structure, sections, progressions):
-        self._position = validator.start(structure.getAttribute('start') or 0)
+    def preInit(self, declaredLength, structure, **extra):
+        """
+        Предварительная инициализация
+
+        :type declaredLength: float
+        :type structure: xml.dom.minidom.Element
+        """
+        super(BaseTimedStructure, self).preInit(declaredLength, structure, **extra)
+        self._position = getAttr(structure, 'start', False, validator.start, 0)
         self.declaredLength = declaredLength
-        self._bpm = bpm
 
-        super(BaseTimedStructure, self).__init__(declaredLength, bpm, transposition, structure, sections, progressions)
-
-    def processSection(self, section, spIter):
+    def processSection(self, section, spIter, **extra):
         """
         Обработка содержимого секции
 
@@ -115,21 +129,23 @@ class BaseTimedStructure(BaseStructure):
         :type spIter: SectionProgressionsIterator
         :rtype: None
         """
-        repeats = validator.repeats(section.getAttribute('repeat'))
+        repeats = getAttr(section, 'repeat', False, validator.repeats, 1)
+        activeBPM = getAttr(section, 'bpm', False, validator.bpm, extra['bpm'])
 
         for repeat in xrange(repeats):
             self.initSection(section, repeat, repeats)
 
             for progression, progressionRepeat, progressionRepeats in spIter:
-                self.initProgression(progression, progressionRepeat, progressionRepeats)
+                self.initProgression(progression, progressionRepeat, progressionRepeats, bpm=activeBPM)
 
                 for rawChord in progression.rawChords:
                     self.processChord(progression, rawChord)
-                    shift = rawChord.seconds(self._bpm)
+                    shift = rawChord.seconds(activeBPM)
                     self._position += shift
 
                 if self._position > self.declaredLength:
-                    raise ParseException(u'Позиция за пределом песни %f > %f после %s:%d/%s' % (self._position, self.declaredLength, section.getAttribute('ref'), repeat + 1, progression.title))
+                    ref = section.getAttribute('ref')
+                    raise ParseException(u'Позиция за пределом песни %f > %f после %s:%d/%s' % (self._position, self.declaredLength, ref, repeat + 1, progression.title))
 
             spIter.reset()
 
@@ -146,7 +162,7 @@ class BaseTimedStructure(BaseStructure):
         pass
 
     @abstractmethod
-    def initProgression(self, progression, repeat, repeats):
+    def initProgression(self, progression, repeat, repeats, **extra):
         """
         Обработка новой последовательности
 

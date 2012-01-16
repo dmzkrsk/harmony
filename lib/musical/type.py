@@ -93,28 +93,27 @@ class Length(object):
         """
         return 240.0 * self.numerator / self.denominator / bpm
 
-    #noinspection PyTupleAssignmentBalance
     @classmethod
-    def validator(cls, value, signature=None):
-        """
-        Проверка строкового обозначения сигнатуры на соответствие шаблону (4/4, 3/4, 6/8...)
+    def make_validator(cls, signature=None):
+        #noinspection PyTupleAssignmentBalance
+        def _validator(value):
+            """
+            Проверка строкового обозначения сигнатуры на соответствие шаблону (4/4, 3/4, 6/8...)
 
-        :type value: unicode
-        :rtype: Length
-        """
-        if not value:
-            return Length(4, 4)
+            :type value: unicode
+            :rtype: Length
+            """
+            if value == 'bar' and signature is not None:
+                return signature
 
-        if value == 'bar' and signature is not None:
-            return signature
+            try:
+                b, m = value.split('/')
+                b = int(b)
+                m = int(m)
+                if m in [1, 2, 4, 8, 16, 32, 64, 128] and b > 0:
+                    return Length(b, m)
+            except (AttributeError, ValueError) :
+                pass
 
-        try:
-            b, m = value.split('/')
-            b = int(b)
-            m = int(m)
-            if m in [1, 2, 4, 8, 16, 32, 64, 128] and b > 0:
-                return Length(b, m)
-        except (AttributeError, ValueError) :
-            pass
-
-        raise ValidationException(u'Неверное значение для сигнатуры: %s' % value)
+            raise ValidationException(u'Неверное значение для сигнатуры: %s' % value)
+        return _validator

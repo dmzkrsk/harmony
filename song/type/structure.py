@@ -27,7 +27,7 @@ class Progression(object):
     """
     Отображение элемента progressions/progression
     """
-    def __init__(self, signature, title, rawChords):
+    def __init__(self, signature, title, rawChords, key):
         """
         :type signature: Length
         :type title: str or unicode
@@ -36,6 +36,7 @@ class Progression(object):
         self.signature = signature
         self.title = title
         self.rawChords = rawChords
+        self.key = key
         self._colorGenerator = RandomColorGenerator()
 
     def color(self, chord):
