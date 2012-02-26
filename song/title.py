@@ -22,17 +22,6 @@ class Title(object):
         """
         return None
 
-class AlbumTitle(Title):
-    """
-    Генератор названия альбома. Даже с номером года, если есть
-    """
-    def getTitle(self):
-        """
-        :rtype: unicode
-        """
-        #noinspection PyStringFormat
-        return u'%s (%d)' % (self._loader.album, self._loader.year) if self._loader.year and self._loader.album else self._loader.album
-
 class MetaTitle(Title):
     """
     Генератор заголовка
@@ -42,10 +31,13 @@ class MetaTitle(Title):
         :rtype: unicode
         """
         title = u'%s - %s' % (self._loader.artist, self._loader.title)
-        album = AlbumTitle(self._loader).getTitle()
 
-        if album:
-            title += u' (%s)' % album
+        if self._loader.album:
+            if self._loader.year:
+                #noinspection PyStringFormat
+                title += u' (%s) (%d)' % (self._loader.album, self._loader.year)
+            else:
+                title += u' (%s)' % self._loader.album
 
         sep = u'\\N' if self._kwargs.get('upperCase', False) else u'\\n'
 
