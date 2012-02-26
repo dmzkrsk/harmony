@@ -143,13 +143,18 @@
         <xs:attribute type="repeatValue" name="repeat" use="optional" default="1"/>
         <xs:attribute type="colorValue" name="color" use="optional" default="#ffffff"/>
     </xs:complexType>
+    <xs:simpleType name="positiveValue">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="markType">
-        <xs:attribute type="xs:integer" name="bar" use="required"/>
+        <xs:attribute type="positiveValue" name="bar" use="required"/>
         <xs:attribute type="xs:float" name="timestamp" use="required"/>
     </xs:complexType>
     <xs:complexType name="timeMap">
         <xs:sequence>
-            <xs:element type="markType" name="mark" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element type="markType" name="mark" minOccurs="2" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="metaType">
