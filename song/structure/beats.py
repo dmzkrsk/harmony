@@ -7,15 +7,9 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде маркеров бита
     """
-    def preInit(self, declaredLength, structure, **extra):
-        """
-        Предварительная инициализация
-
-        :type declaredLength: float
-        :type structure: xml.dom.minidom.Element
-        """
-        super(Structure, self).preInit(declaredLength, structure)
+    def __init__(self, structure, sections, progressions, declaredLength, timeMap, **extra):
         self.beats = BeatSheet()
+        super(Structure, self).__init__(structure, sections, progressions, declaredLength, timeMap, **extra)
 
     def initProgression(self, progression, repeat, repeats, **extra):
         """
@@ -29,7 +23,7 @@ class Structure(BaseTimedStructure):
 
         # Расчитываем длину последовательности
         beats = progression.beatCount()
-        _beatSize = 60.0 / extra['bpm']
+        _beatSize = 60.0 / self._timeMap.bpm(self._bar)
 
         # Двойной цикл
         # Для каждой доли надо пройти второй цикл по кол-ву долей
@@ -38,7 +32,7 @@ class Structure(BaseTimedStructure):
         for c, b in product(xrange(beats), xrange(progression.signature.numerator)):
             # Номер активной доли
             cn = c % progression.signature.numerator
-            beatLabel = Beat(b, progression.signature.numerator, self._position + c * _beatSize,
+            beatLabel = Beat(b, progression.signature.numerator, self._timeMap(self._bar) + c * _beatSize,
                 cn == b #Доля активна, если совпадают значения
             )
             self.beats.append(beatLabel)
@@ -56,4 +50,4 @@ class Structure(BaseTimedStructure):
         Закрываем последовательность
         :rtype: None
         """
-        self.beats.close(self._position)
+        self.beats.close(self._timeMap(self._bar))

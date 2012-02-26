@@ -9,14 +9,8 @@ class Structure(BaseTimedStructure):
     """
     Парсер структуры в виде аккордов, сегментов и последовательностей
     """
-    def preInit(self, declaredLength, structure, **extra):
-        """
-        Предварительная инициализация
 
-        :type declaredLength: float
-        :type structure: xml.dom.minidom.Element
-        """
-        super(Structure, self).preInit(declaredLength, structure, **extra)
+    def __init__(self, structure, sections, progressions, declaredLength, timeMap, **extra):
         self.chords = LabelSheet()
         self.sections = LabelSheet()
         self.progressions = LabelSheet()
@@ -26,6 +20,8 @@ class Structure(BaseTimedStructure):
         self._transposition = extra['transposition']
 
         self._colorMap = []
+
+        super(Structure, self).__init__(structure, sections, progressions, declaredLength, timeMap, **extra)
 
     def initSection(self, section, repeat, repeats):
         """
@@ -46,10 +42,10 @@ class Structure(BaseTimedStructure):
 
         # Карта цвета
 
-        if not self._colorMap and self._position > 0:
+        if not self._colorMap and self._bar:
             self._colorMap.append((0, None))
 
-        self._colorMap.append((self._position, color))
+        self._colorMap.append((self._timeMap(self._bar), color))
 
     def initProgression(self, progression, repeat, repeats, **extra):
         """
@@ -66,7 +62,9 @@ class Structure(BaseTimedStructure):
         progressionLabel = self.labelAtCurPos(progressionTitle, settings.PROGRESSION_COLOR)
         self.progressions.append(progressionLabel)
 
-        infoLabel = u'%d bpm | %s' % (int(round(extra['bpm'])), progression.key or self._key)
+        abpm = self._timeMap.bpm(self._bar)
+
+        infoLabel = u'%d bpm | %s' % (abpm, progression.key or self._key)
         infoLabel = self.labelAtCurPos(infoLabel, settings.COMMON_COLOR)
         self.infos.append(infoLabel)
 
@@ -92,7 +90,7 @@ class Structure(BaseTimedStructure):
         :type color: str or unicode or RandomColor
         :rtype: Label
         """
-        return Label(title, self._position, color)
+        return Label(title, self._timeMap(self._bar), color)
 
     @classmethod
     def makeTitle(cls, title, repeat, repeats):
@@ -120,10 +118,12 @@ class Structure(BaseTimedStructure):
 
         :rtype: None
         """
-        self.chords.close(self._position)
-        self.sections.close(self._position)
-        self.progressions.close(self._position)
-        self.infos.close(self._position)
+        pos = self._timeMap(self._bar)
 
-        if self._colorMap[-1][0] < self._position:
-            self._colorMap.append((self._position - 1, None))
+        self.chords.close(pos)
+        self.sections.close(pos)
+        self.progressions.close(pos)
+        self.infos.close(pos)
+
+        if self._colorMap[-1][0] < pos:
+            self._colorMap.append((pos - 1, None))

@@ -57,16 +57,11 @@ class Structure(BaseStructure):
     Класс для графической презентации структуры песни
     """
 
-    def preInit(self, declaredLength, structure, **extra):
-        """
-        Предварительная инициализация
-
-        :type declaredLength: float
-        :type structure: xml.dom.minidom.Element
-        """
-        super(Structure, self).preInit(declaredLength, structure, **extra)
+    def __init__(self, structure, sections, progressions, **extra):
         self._structure = []
         self._colorGenerator = RandomColorGenerator()
+
+        super(Structure, self).__init__(structure, sections, progressions, **extra)
 
     def finishStructure(self):
         """

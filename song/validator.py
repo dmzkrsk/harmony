@@ -26,6 +26,20 @@ def year(value):
 
     raise ValidationException(u'Неверное значение для года: %s' % value)
 
+def bar(value):
+    """
+    Проверка строкового обозначения такта на соответствие целому числу
+
+    :type value: unicode
+    :rtype: int
+    """
+    try:
+        return int(value)
+    except ValueError:
+        pass
+
+    raise ValidationException(u'Неверное значение для номера такта: %s' % value)
+
 def bpm(value):
     """
     Проверка строкового обозначения скорости на соответствие положительному числу с плавающей точкой

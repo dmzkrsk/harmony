@@ -13,16 +13,6 @@ class RawChord(object):
         self.name = name
         self.length = length
 
-    def seconds(self, bpm):
-        """
-        Длина в секундах
-
-        :type bpm: float
-        :rtype: float
-        """
-
-        return self.length.seconds(bpm)
-
 class Progression(object):
     """
     Отображение элемента progressions/progression

@@ -1,6 +1,8 @@
 # coding= utf-8
+from operator import itemgetter
 from song.loader import *
 import xml.dom.minidom
+from song.timemap import ConstantTimeMap, MarkTimeMap
 import validator
 from lib.musical.validator import key as validator_key
 
@@ -46,12 +48,42 @@ class SongReader(object):
         # Загружаем корневые объекты
         self._meta = self._oneAndOnly('meta')
 
+        bpm = self._meta.getElementsByTagName('bpm')
+        time = self._meta.getElementsByTagName('time')
+
+        if len(bpm) > 1 or len(time) > 1 or len(bpm) + len(time) != 1:
+            raise ParseException(u'Элемент meta должен содержать один и только один элемент bpm или time')
+
         # Находим последовательности и секции
         self._progressions = ProgressionLoader(self._oneAndOnly('progressions')).values
         self._sections = SectionLoader(self._oneAndOnly('sections')).values
 
         # Загружаем корень структуры
         self._structure = self._oneAndOnly('structure')
+        structureStart = getAttr(self._structure, 'start', False, validator.start, 0.0)
+
+        if len(bpm) == 1:
+            v = unicode(self._getText(bpm[0]))
+            self._timeMap = ConstantTimeMap(structureStart, validator.bpm(v))
+        else:
+            marks = []
+            for mark in time[0].getElementsByTagName('mark'):
+                bar = getAttr(mark, 'bar', True, validator.bar)
+                timestamp = getAttr(mark, 'timestamp', True, validator.start)
+                marks.append((bar, timestamp))
+            marks.sort(key=itemgetter(0))
+
+            if len(marks) < 2:
+                raise ParseException(u'Элемент time должен содержать от двух элементов mark')
+
+            if not marks[0][0]:
+                raise ParseException(u'Начальный элемент mark не может начинаться он нулевого такта')
+
+            timestamps = map(itemgetter(1), marks)
+            if any(p > n for p, n in zip(timestamps[:-1], timestamps[1:])):
+                raise ParseException(u'Элементы mark должны образовывать возрастающую последовательность')
+
+            self._timeMap = MarkTimeMap(structureStart, marks)
 
     def _oneAndOnly(self, tag):
         """
@@ -85,7 +117,6 @@ class SongReader(object):
     album = _metaValue('album', False)
     year = _metaValue('year', False, validator.year)
     declaredLength = _metaValue('length', True, validator.length)
-    bpm = _metaValue('bpm', True, validator.bpm)
     key = _metaValue('key', False, validator_key)
     transposition = _metaValue('transposition', False, validator_key)
     comment = _metaValue('comment', False)
@@ -107,6 +138,7 @@ class SongReader(object):
         :type structure: structure.BaseStructure
         :rtype: structure.BaseStructure
         """
-        return structure(self.declaredLength, self._structure, self._sections, self._progressions,
-            bpm=self.bpm, key=self.key, transposition=self.transposition
+        return structure(self._structure, self._sections, self._progressions,
+            declaredLength=self.declaredLength, timeMap=self._timeMap,
+            key=self.key, transposition=self.transposition
         )
