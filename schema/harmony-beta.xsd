@@ -157,6 +157,7 @@
             <xs:element type="nonEmptyString" name="artist"/>
             <xs:element type="nonEmptyString" name="title"/>
             <xs:element type="nonEmptyString" name="album" minOccurs="0"/>
+            <xs:element type="xs:gYear" name="year" minOccurs="0"/>
             <xs:element type="lengthValue" name="length">
                 <xs:annotation>
                     <xs:documentation>Song length in seconds (time)</xs:documentation>
