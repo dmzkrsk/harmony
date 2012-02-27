@@ -21,7 +21,7 @@ class ConstantTimeMap(object):
         :type bar: lib.musical.type.Length
         :rtype: float
         """
-        return bar.seconds(self._bpm) + self._start
+        return (bar - 1).seconds(self._bpm) + self._start
 
     #noinspection PyUnusedLocal
     def bpm(self, bar):
@@ -39,11 +39,11 @@ class MarkTimeMap(object):
         :type start: float
         :type marks: list
         """
-        self._mk = [0] + map(itemgetter(0), marks)
-        self._mv = [start] + map(itemgetter(1), marks)
-        self._l = len(marks)
+        mmarks = [(1, start)] + marks
 
-        mmarks = [(0, start)] + marks
+        self._mk = map(itemgetter(0), mmarks)
+        self._mv = map(itemgetter(1), mmarks)
+        self._l = len(marks)
 
         self._bpm = [
             240 * (m1[0] - m0[0]) / (m1[1] - m0[1])

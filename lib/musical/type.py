@@ -7,7 +7,7 @@ class Length(object):
     и арифметических операций
     """
 
-    def __init__(self, numerator, denominator=4):
+    def __init__(self, numerator, denominator):
         self.numerator = numerator
         self.denominator = denominator
 
@@ -160,7 +160,7 @@ class Length(object):
         return _validator
 
 if __name__ == '__main__':
-    assert not Length(0)
+    assert not Length(0, 4)
     assert Length(5, 8)
     assert Length(5,8) > 0
     assert Length(5,8) != 0
@@ -183,6 +183,6 @@ if __name__ == '__main__':
     assert Length(5,8) >= Length(10,16)
     assert Length(5,8) <= Length(5,8)
     assert Length(5,8) <= Length(10,16)
-    assert Length(0,8) == Length(0)
-    assert Length(4,8) == Length(2)
+    assert Length(0,8) == Length(0, 4)
+    assert Length(4,8) == Length(2, 4)
 

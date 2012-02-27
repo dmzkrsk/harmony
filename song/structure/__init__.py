@@ -69,7 +69,7 @@ class BaseStructure(object):
         :type progressions: dict
         """
 
-        self._bar = Length(0)
+        self._bar = Length(4,4)
 
         for element in iterElements(structure):
             if element.tagName != 'section':
